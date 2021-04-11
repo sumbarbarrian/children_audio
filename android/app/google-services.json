@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "676146460754",
+    "project_id": "children-audio",
+    "storage_bucket": "children-audio.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:676146460754:android:6104ef6d3b0426dc86c78b",
+        "android_client_info": {
+          "package_name": "ru.sumbarbarrian.childrenaudio"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "676146460754-6blhl555ia4athmdbkai4rt0v0jk2u8d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDw8JOw-Khfgd7IUapExNA8hiRfZ2X2hwE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "676146460754-6blhl555ia4athmdbkai4rt0v0jk2u8d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
