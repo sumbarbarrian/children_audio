@@ -1,4 +1,6 @@
+import 'package:children_audio/DriveProvider.dart';
 import 'package:children_audio/http/client.dart';
+import 'package:children_audio/widgets/SelectList.dart';
 import 'package:flutter/material.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:google_sign_in/google_sign_in.dart' as signIn;
@@ -6,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 var driveAPI;
 var settings;
+DriveProvider provider;
 
 void main() {
   runApp(MyApp());
@@ -35,6 +38,7 @@ class MainPage extends StatefulWidget {
 }
 
 class MainPageState extends State<MainPage> {
+  bool _askType;
   bool _askFolder;
   List _folders;
   var _folder;
@@ -46,8 +50,11 @@ class MainPageState extends State<MainPage> {
       super.initState();
       SharedPreferences.getInstance().then( (_settings) async {
         settings = _settings;
+        var type = _settings.get('drive-type');
         var folder = _settings.get('folder');
-        if (folder == null) {
+        if (type == null) {
+          _askType = true;
+        } else if (folder == null) {
           final items = await this.loadItems();
           _askFolder = true;
           _folders = items;
@@ -64,6 +71,7 @@ class MainPageState extends State<MainPage> {
   Future<List> loadItems() async {
     var _list;
     try {
+
       final googleSignIn = signIn.GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
       final signIn.GoogleSignInAccount account = await googleSignIn.signIn();
       final Map<String, String> _headers = await account.authHeaders;
@@ -80,24 +88,28 @@ class MainPageState extends State<MainPage> {
     return _list;
   }
 
+  void onSelect(String folder) {
+    settings.setString('folder', folder);
+  }
+
+  String getTitle() {
+    if (_askFolder) {
+      return 'Please select folder for audio';
+    } else if (_askType) {
+      return 'Please select storage your';
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_askFolder ? 'Please select folder for audio' : widget.title ),
+        title: Text(getTitle() ?? widget.title),
       ),
       body: Center(
         child: _askFolder
-            ? ListView.builder(
-                itemBuilder: (context,index) {
-                  return ListTile(
-                    title: Text(_folders[index].name),
-                    onTap: () {
-                      print(_folders[index].name);
-                    },
-                  );
-                }
-              , itemCount: _folders.length,)
+            ? SelectList<String>(_folders.map( (f) => f.name), this.onSelect, 'Use this folder?', (f) => 'use folder $f as source')
             : Text('your folder is $_folder')
       )
     );
