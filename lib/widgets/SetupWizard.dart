@@ -30,7 +30,6 @@ class _SetupWizardState extends State<SetupWizard> {
 
   _onChange(Item drive) async {
     _context = await widget._onStep(_step, drive);
-    assert(_context == null);
     next();
   }
 
@@ -40,15 +39,19 @@ class _SetupWizardState extends State<SetupWizard> {
       case WizardStep.Drive:
         return DriveList(_onChange);
       case WizardStep.Folder:
-        return FolderList(_context['drives'], _onChange);
+        assert(_context != null, 'Context for `${WizardStep.Folder}` type is null');
+        return FolderList(_context['folders'], _onChange);
     }
-    return null;
+    return Container();
   }
 
   next() {
-    setState(() {
-      _step: _order.removeAt(0);
-    });
+    if (_order.isNotEmpty ) {
+      _step = _order.removeAt(0);
+      setState(() {});
+    } else {
+      _step = null;
+    }
   }
 
 

@@ -3,6 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'SelectList.dart';
 
+class DriveItem extends Item {
+  DriveType type;
+
+  DriveItem(this.type, label) : super(label);
+}
+
 class DriveList extends StatelessWidget {
   final _onSelect;
 
@@ -10,7 +16,7 @@ class DriveList extends StatelessWidget {
 
   @override
   build(BuildContext context) {
-    return SelectList<Item>(DriveType.values.map((e) => Item(e.label)).toList(),
-        this._onSelect, 'Use this Drive?', (f) => 'use $f as as main Drive');
+    return SelectList<Item>(DriveType.values.map((e) => DriveItem(e, e.label)).toList(),
+        this._onSelect, 'Use this Drive?', (f) => 'Use ${f.label} as main Drive');
   }
 }

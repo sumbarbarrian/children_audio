@@ -1,25 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:googleapis/drive/v3.dart';
 import 'SelectList.dart';
 
-class Folder implements Item {
+class Folder extends Item {
 
   final _folder;
-  Folder(this._folder);
+  Folder(this._folder) : super(_folder.name);
 
-  @override
-  String get label => _folder.name;
+  String get folder => _folder;
 }
 
 class FolderList extends StatelessWidget {
-  final _folders;
+  final List<File> _folders;
   final _onSelect;
 
   FolderList(this._folders, this._onSelect);
 
   @override
   build(BuildContext context) {
-    return SelectList<Folder>(_folders.map( Folder ),
-        this._onSelect, 'Use this Folder?', (f) => 'use folder $f as source folder');
+    final folders = _folders.map( (f) => Folder(f) ).toList();
+    return SelectList<Folder>(folders ,
+        this._onSelect, 'Use this Folder?', (f) => 'use folder ${f.label} as source folder');
   }
 }

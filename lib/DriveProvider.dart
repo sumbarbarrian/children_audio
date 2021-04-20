@@ -36,7 +36,7 @@ class DriveProvider {
   ///
   /// Creates scope list depends on selected drive type
   ///
-  List _getScopes() {
+  List<String> _getScopes() {
     switch(this._type) {
       case DriveType.GOOGLE_DRIVE:
         return [DriveApi.driveScope];

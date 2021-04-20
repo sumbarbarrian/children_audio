@@ -40,8 +40,8 @@ class MainPage extends StatefulWidget {
 }
 
 class MainPageState extends State<MainPage> {
-  var _folder;
-  var _type;
+  String _folder;
+  String _type;
   var list;
 
   @override
@@ -59,39 +59,24 @@ class MainPageState extends State<MainPage> {
     }
   }
 
-  Future<List> loadItems() async {
-    var _list;
-    try {
-
-      final googleSignIn = signIn.GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
-      final signIn.GoogleSignInAccount account = await googleSignIn.signIn();
-      final Map<String, String> _headers = await account.authHeaders;
-      final _client = new HttpClient(_headers);
-
-      driveAPI = drive.DriveApi(_client);
-      final files = await driveAPI.files;
-
-      final result = await files.list(q: "mimeType = 'application/vnd.google-apps.folder' and 'me' in owners");
-      _list = result.files;
-    } catch (e) {
-      print(e);
-    }
-    return _list;
-  }
-
   void onSelect(String folder) {
     settings.setString('folder', folder);
   }
 
-  _onStep(step, value) async{
+  _onStep(step, value) async {
+    final label = (value as Item).label;
     switch (step) {
       case WizardStep.Drive:
-        _type = value;
-        provider = DriveProvider(value, SignInProvider(SignInType.GOOGLE));
-        return { 'folders': provider.listFolders() };
+        _type = label;
+        settings.setString('drive-type', _type);
+        provider = DriveProvider(value.type, SignInProvider(SignInType.GOOGLE));
+        final folders = await provider.listFolders();
+        return { 'folders': folders };
       case WizardStep.Folder:
-        _folder = value;
+        _folder = label;
+        settings.setString('folder', _folder);
         setState(() {});
+        return {};
     }
   }
 
@@ -102,7 +87,7 @@ class MainPageState extends State<MainPage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: _folder == null
+        child: _folder != null
             ? Text('folder is $_folder')
             : SetupWizard(_onStep)
       )

@@ -39,6 +39,7 @@ class SelectList<T extends Item> extends StatelessWidget {
                       child: Text('Ok'),
                       onPressed: () {
                         this._onSelect(item);
+                        Navigator.pop(context);
                       },
                     ),
                     TextButton(
