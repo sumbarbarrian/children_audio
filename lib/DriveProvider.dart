@@ -1,10 +1,23 @@
 import 'package:children_audio/SignInProvider.dart';
+import 'package:googleapis/androidmanagement/v1.dart';
 import 'package:googleapis/drive/v3.dart';
 import 'http/client.dart';
 
 enum DriveType {
   GOOGLE_DRIVE,
-  ONE_DRIVE
+  ONE_DRIVE,
+}
+
+extension DriveTypeExtension on DriveType{
+  String get label {
+    switch (this) {
+      case DriveType.GOOGLE_DRIVE:
+        return 'Google Drive';
+      case DriveType.ONE_DRIVE:
+        return 'MS One Drive';
+    }
+    return '';
+  }
 }
 
 class DriveProvider {

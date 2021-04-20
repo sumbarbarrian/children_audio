@@ -4,7 +4,15 @@ import 'package:flutter/widgets.dart';
 typedef String QuestionType<T>(T selected);
 typedef void OnSelect<T>(T selected);
 
-class SelectList<T> extends StatelessWidget {
+class Item {
+  String _label;
+
+  Item(this._label);
+
+  String get label => _label;
+}
+
+class SelectList<T extends Item> extends StatelessWidget {
   final List<T> _list;
   final OnSelect<T> _onSelect;
   final String _title;
@@ -17,7 +25,7 @@ class SelectList<T> extends StatelessWidget {
     return ListView.builder(
       itemBuilder: (context,index) {
         final item = _list[index];
-        final name = item.toString();
+        final name = item.label;
         return ListTile(
           title: Text(name),
           onTap: () {

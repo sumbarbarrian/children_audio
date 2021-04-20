@@ -1,7 +1,7 @@
 import 'package:children_audio/http/client.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-enum signInType {
+enum SignInType {
   GOOGLE,
   MICROSOFT
 }
@@ -9,12 +9,12 @@ enum signInType {
 
 class SignInProvider {
 
-  final signInType _type;
+  final SignInType _type;
 
   SignInProvider(this._type);
 
   Future<HttpClient> signIn(scopes) async {
-    if (this._type == signInType.GOOGLE) {
+    if (this._type == SignInType.GOOGLE) {
       final signIn = GoogleSignIn.standard(scopes: scopes);
       final GoogleSignInAccount account = await signIn.signIn();
       final Map<String, String> headers = await account.authHeaders;

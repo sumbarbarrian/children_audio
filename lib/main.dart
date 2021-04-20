@@ -1,6 +1,8 @@
 import 'package:children_audio/DriveProvider.dart';
+import 'package:children_audio/SignInProvider.dart';
 import 'package:children_audio/http/client.dart';
 import 'package:children_audio/widgets/SelectList.dart';
+import 'package:children_audio/widgets/SetupWizard.dart';
 import 'package:flutter/material.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:google_sign_in/google_sign_in.dart' as signIn;
@@ -38,29 +40,18 @@ class MainPage extends StatefulWidget {
 }
 
 class MainPageState extends State<MainPage> {
-  bool _askType;
-  bool _askFolder;
-  List _folders;
   var _folder;
+  var _type;
+  var list;
 
   @override
   void initState() {
     try {
-      _askFolder = false;
       super.initState();
       SharedPreferences.getInstance().then( (_settings) async {
         settings = _settings;
-        var type = _settings.get('drive-type');
-        var folder = _settings.get('folder');
-        if (type == null) {
-          _askType = true;
-        } else if (folder == null) {
-          final items = await this.loadItems();
-          _askFolder = true;
-          _folders = items;
-        } else {
-          _folder = folder;
-        }
+        _type = _settings.get('drive-type');
+        _folder = _settings.get('folder');
         setState(() {});
       });
     } catch (e) {
@@ -92,25 +83,28 @@ class MainPageState extends State<MainPage> {
     settings.setString('folder', folder);
   }
 
-  String getTitle() {
-    if (_askFolder) {
-      return 'Please select folder for audio';
-    } else if (_askType) {
-      return 'Please select storage your';
+  _onStep(step, value) async{
+    switch (step) {
+      case WizardStep.Drive:
+        _type = value;
+        provider = DriveProvider(value, SignInProvider(SignInType.GOOGLE));
+        return { 'folders': provider.listFolders() };
+      case WizardStep.Folder:
+        _folder = value;
+        setState(() {});
     }
-    return null;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(getTitle() ?? widget.title),
+        title: Text(widget.title),
       ),
       body: Center(
-        child: _askFolder
-            ? SelectList<String>(_folders.map( (f) => f.name), this.onSelect, 'Use this folder?', (f) => 'use folder $f as source')
-            : Text('your folder is $_folder')
+        child: _folder == null
+            ? Text('folder is $_folder')
+            : SetupWizard(_onStep)
       )
     );
   }

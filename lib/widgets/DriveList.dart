@@ -1,17 +1,16 @@
-import 'package:flutter/cupertino.dart';
-
+import 'package:children_audio/DriveProvider.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'SelectList.dart';
 
-class DriveList extends SelectList{
-  final _folders;
+class DriveList extends StatelessWidget {
   final _onSelect;
 
-  DriveList(this._folders, this._onSelect) {
-    super();
-  }
+  DriveList(this._onSelect);
 
   @override
   build(BuildContext context) {
-    return super<String>(_folders.map( (f) => f.name), this._onSelect, 'Use this Drive?', (f) => 'use $f as as main Drive');
+    return SelectList<Item>(DriveType.values.map((e) => Item(e.label)).toList(),
+        this._onSelect, 'Use this Drive?', (f) => 'use $f as as main Drive');
   }
 }
