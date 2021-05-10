@@ -16,9 +16,13 @@ class SignInProvider {
   Future<HttpClient> signIn(scopes) async {
     if (this._type == SignInType.GOOGLE) {
       final signIn = GoogleSignIn.standard(scopes: scopes);
-      final GoogleSignInAccount account = await signIn.signIn();
-      final Map<String, String> headers = await account.authHeaders;
-      return Future.value(new HttpClient(headers));
+      final GoogleSignInAccount? account = await signIn.signIn();
+      if (account != null) {
+        final Map<String, String> headers = await account.authHeaders;
+        return Future.value(new HttpClient(headers));
+      } else {
+        return throw 'Cannot create HTTPClient';
+      }
     } else {
       return Future.error(throw('Provider is not implemented'));
     }

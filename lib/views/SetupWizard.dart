@@ -3,21 +3,25 @@ import 'package:children_audio/widgets/FolderList.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-import 'SelectList.dart';
+import '../widgets/SelectList.dart';
 
 class SetupWizard extends StatefulWidget {
-  final _onStep;
-  SetupWizard(this._onStep);
+  static const int DRIVE = 0;
+  static const int FOLDER = 1;
+  static const _order = [DRIVE, FOLDER];
+  final onStep;
+  final onFinish;
+  final startStep;
+
+  SetupWizard({ this.startStep, required this.onFinish , this.onStep});
 
   @override
   State<StatefulWidget> createState() => _SetupWizardState();
 }
 
-enum WizardStep { Drive , Folder }
-
 class _SetupWizardState extends State<SetupWizard> {
-  final _order = [WizardStep.Drive, WizardStep.Folder];
-  WizardStep _step;
+
+  late int _step;
   var _context;
 
   _SetupWizardState();
@@ -25,32 +29,40 @@ class _SetupWizardState extends State<SetupWizard> {
   @override
   void initState() {
     super.initState();
-    _step = _order.removeAt(0);
+    _step = widget.startStep ?? 0;
   }
 
   _onChange(Item drive) async {
-    _context = await widget._onStep(_step, drive);
+    _context = await widget.onStep(_step, drive);
     next();
   }
 
   @override
   Widget build(BuildContext context) {
-    switch(_step) {
-      case WizardStep.Drive:
+    final step = SetupWizard._order[_step];
+    switch(step) {
+      case SetupWizard.DRIVE:
         return DriveList(_onChange);
-      case WizardStep.Folder:
-        assert(_context != null, 'Context for `${WizardStep.Folder}` type is null');
+      case SetupWizard.FOLDER:
+        assert(_context != null, 'Context for step Folder is null');
         return FolderList(_context['folders'], _onChange);
     }
     return Container();
   }
 
   next() {
-    if (_order.isNotEmpty ) {
-      _step = _order.removeAt(0);
+    _step++;
+    if (_step < SetupWizard._order.length ) {
       setState(() {});
     } else {
-      _step = null;
+      widget.onFinish();
+    }
+  }
+
+  back() {
+    _step--;
+    if (_step >= 0 ) {
+      setState(() {});
     }
   }
 

@@ -1,95 +1,96 @@
-import 'package:children_audio/DriveProvider.dart';
-import 'package:children_audio/SignInProvider.dart';
-import 'package:children_audio/http/client.dart';
-import 'package:children_audio/widgets/SelectList.dart';
-import 'package:children_audio/widgets/SetupWizard.dart';
+import 'package:children_audio/views/SetupView.dart';
+import 'package:children_audio/views/SetupWizard.dart';
 import 'package:flutter/material.dart';
-import 'package:googleapis/drive/v3.dart' as drive;
-import 'package:google_sign_in/google_sign_in.dart' as signIn;
-import 'package:shared_preferences/shared_preferences.dart';
 
-var driveAPI;
-var settings;
-DriveProvider provider;
+import 'global.dart';
+final GlobalKey<NavigatorState> navigatorKey = new GlobalKey<NavigatorState>();
+Global global = new Global();
 
 void main() {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Audio for Children',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: MainPage(title: 'Audio for Children'),
-    );
-  }
+class MyApp extends StatefulWidget {
+  MainState createState() => MainState();
 }
 
-class MainPage extends StatefulWidget {
-  MainPage({Key key, this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  MainPageState createState() => MainPageState();
-}
-
-class MainPageState extends State<MainPage> {
-  String _folder;
-  String _type;
-  var list;
+class MainState extends State<MyApp> {
+  bool isReady = false;
 
   @override
   void initState() {
     try {
       super.initState();
-      SharedPreferences.getInstance().then( (_settings) async {
-        settings = _settings;
-        _type = _settings.get('drive-type');
-        _folder = _settings.get('folder');
-        setState(() {});
-      });
+      global.after
+        .then((global) {
+          this.isReady = global.isReady;
+          setState(() {});
+        });
     } catch (e) {
       print(e);
     }
   }
 
-  void onSelect(String folder) {
-    settings.setString('folder', folder);
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      navigatorKey: navigatorKey,
+      title: 'Audio for Children',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => MainPage(),
+        '/setup': (context) => SetupView()
+      },
+    );
   }
 
-  _onStep(step, value) async {
-    final label = (value as Item).label;
-    switch (step) {
-      case WizardStep.Drive:
-        _type = label;
-        settings.setString('drive-type', _type);
-        provider = DriveProvider(value.type, SignInProvider(SignInType.GOOGLE));
-        final folders = await provider.listFolders();
-        return { 'folders': folders };
-      case WizardStep.Folder:
-        _folder = label;
-        settings.setString('folder', _folder);
-        setState(() {});
-        return {};
+  @override
+  void didUpdateWidget(covariant MyApp oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!this.isReady) {
+      navigatorKey.currentState!.pushNamed('/setup');
     }
   }
+
+}
+
+class MainPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text('Audio for Children'),
+        actions: <Widget>[
+          Padding(
+              padding: EdgeInsets.only(right: 20.0),
+              child: GestureDetector(
+                onTap: () {},
+                child: Icon(
+                  Icons.search,
+                  size: 26.0,
+                ),
+              )
+          ),
+          Padding(
+              padding: EdgeInsets.only(right: 20.0),
+              child: GestureDetector(
+                onTap: () {
+                  global.clear();
+                  navigatorKey.currentState!.pushNamed('/setup');
+                },
+                child: Icon(
+                    Icons.more_vert
+                ),
+              )
+          ),
+        ],
       ),
       body: Center(
-        child: _folder != null
-            ? Text('folder is $_folder')
-            : SetupWizard(_onStep)
+        child: Text('List')
       )
     );
   }
